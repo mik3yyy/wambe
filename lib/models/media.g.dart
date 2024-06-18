@@ -12,20 +12,30 @@ class MediaAdapter extends TypeAdapter<Media> {
 
   @override
   Media read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
     return Media(
-      url: reader.readString(),
-      createdAt: reader.readString(),
-      uuid: reader.readString(),
-      id: reader.readInt(),
+      url: fields[0] as String,
+      createdAt: fields[2] as String,
+      uuid: fields[3] as String,
+      id: fields[1] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, Media obj) {
-    writer.writeString(obj.url);
-    writer.writeString(obj.createdAt);
-    writer.writeString(obj.uuid);
-    writer.writeInt(obj.id);
+    writer
+      ..writeByte(4)
+      ..writeByte(0)
+      ..write(obj.url)
+      ..writeByte(1)
+      ..write(obj.id)
+      ..writeByte(2)
+      ..write(obj.createdAt)
+      ..writeByte(3)
+      ..write(obj.uuid);
   }
 
   @override
@@ -45,23 +55,22 @@ class MediaResponseAdapter extends TypeAdapter<MediaResponse> {
 
   @override
   MediaResponse read(BinaryReader reader) {
-    final media = <String, List<Media>>{};
-    final numEntries = reader.readInt();
-    for (int i = 0; i < numEntries; i++) {
-      final key = reader.readString();
-      final value = reader.readList().cast<Media>();
-      media[key] = value;
-    }
-    return MediaResponse(media: media);
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return MediaResponse(
+      media: (fields[0] as Map).map((dynamic k, dynamic v) =>
+          MapEntry(k as String, (v as List).cast<Media>())),
+    );
   }
 
   @override
   void write(BinaryWriter writer, MediaResponse obj) {
-    writer.writeInt(obj.media.length);
-    obj.media.forEach((key, value) {
-      writer.writeString(key);
-      writer.writeList(value);
-    });
+    writer
+      ..writeByte(1)
+      ..writeByte(0)
+      ..write(obj.media);
   }
 
   @override

@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
@@ -7,6 +8,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 import 'package:wambe/blocs/user_bloc/user_bloc.dart';
 import 'package:wambe/global_widget/custom_button.dart';
 import 'package:wambe/global_widget/mymessage_handler.dart';
@@ -26,12 +28,26 @@ class _EventloginState extends State<Eventlogin> {
   TextEditingController codeController = TextEditingController();
 
   Future<void> scanBarcodeNormal() async {
-    String barcodeScanRes;
+    String barcodeScanRes = '';
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
-      barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
-          '#ff6666', 'Cancel', true, ScanMode.BARCODE);
+      if (kIsWeb) {
+        var res = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const SimpleBarcodeScannerPage(),
+            ));
+        setState(() {
+          if (res is String) {
+            barcodeScanRes = res;
+          }
+        });
+      } else {
+        barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
+            '#ff6666', 'Cancel', true, ScanMode.BARCODE);
+      }
       print(barcodeScanRes);
+
       int? num = int.tryParse(barcodeScanRes);
       if (num != null) {
         if (barcodeScanRes.length == 5) {

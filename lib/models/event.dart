@@ -19,12 +19,20 @@ class Event extends HiveObject {
   @HiveField(4)
   String eventId;
 
+  @HiveField(5)
+  bool eventPublic;
+
+  @HiveField(6)
+  String eventName;
+
   Event({
     required this.uploadLimit,
     required this.totalMedia,
     required this.totalAttendees,
     required this.eventEnd,
     required this.eventId,
+    required this.eventName,
+    required this.eventPublic,
   });
 
   factory Event.fromJson(Map<String, dynamic> json) => Event(
@@ -32,6 +40,8 @@ class Event extends HiveObject {
         totalMedia: json['eventPlan']['totalMedia'],
         totalAttendees: json['eventPlan']['totalAttendees'].toString(),
         eventEnd: json['eventEnd'],
+        eventName: json['eventName'],
+        eventPublic: json['eventPublic'],
         eventId: json['eventId'].toString(),
       );
 
@@ -42,6 +52,8 @@ class Event extends HiveObject {
           'totalAttendees': totalAttendees,
         },
         'eventEnd': eventEnd,
+        'eventName': eventName,
+        'eventPublic': eventPublic,
         'eventId': eventId,
       };
 }

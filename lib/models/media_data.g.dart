@@ -14,7 +14,7 @@ class MediaDataAdapter extends TypeAdapter<MediaData> {
   MediaData read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
-      for (var i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return MediaData(
       totalMediaCount: fields[0] as int,
@@ -66,7 +66,7 @@ class TopContributorAdapter extends TypeAdapter<TopContributor> {
   TopContributor read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
-      for (var i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return TopContributor(
       id: fields[0] as int,

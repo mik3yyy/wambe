@@ -116,9 +116,27 @@ class HiveFunction {
   }
 
   /////////////////////
+  static void deleteTags() {
+    wambeBox.delete("tags");
+  }
+
+  static bool tagsExist() {
+    return wambeBox.get("tags") != null;
+  }
+
+  static List getTags() {
+    return wambeBox.get("tags");
+  }
+
+  static void insertTags(List response) {
+    wambeBox.put("tags", response.map((e) => e.toString()).toList());
+  }
+
+  /////////////////////
   static void DELETEALL() {
     deleteuser();
     deleteEvent();
     deleteMyMoment();
+    deleteTags();
   }
 }

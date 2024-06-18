@@ -62,6 +62,12 @@ dependencies:
   intl: ^0.18.1
   flutter_staggered_grid_view: ^0.7.0
   cached_network_image: ^3.3.1
+  no_screenshot: ^0.0.1+6
+  file_picker: ^8.0.5
+  simple_barcode_scanner: ^0.1.1
+  dialog_alert_transition: ^1.0.6
+  url_strategy: ^0.2.0
+  lottie: ^3.1.2
 
   # grock: ^0.5.7
 
@@ -77,6 +83,7 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^3.0.0
   flutter_launcher_icons: ^0.13.1
+  build_web_compilers: ^4.0.4
 
 
 # For information on the generic Dart part of this file, see the

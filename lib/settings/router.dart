@@ -5,6 +5,7 @@ import 'package:wambe/screens/login_screen/welcome.dart';
 import 'package:wambe/screens/main_screen/Home_screen/view_time.dart';
 import 'package:wambe/screens/main_screen/local_widget/upload_file_screen.dart';
 import 'package:wambe/screens/main_screen/main_screen.dart';
+import 'package:wambe/screens/share_screen/share_screen.dart';
 import 'package:wambe/screens/splash_screen/splash_screen.dart';
 import 'package:wambe/settings/hive.dart';
 
@@ -15,7 +16,14 @@ final GoRouter router = GoRouter(
   routes: <RouteBase>[
     GoRoute(
       path: '/',
-      builder: (context, state) => SplashScreen(),
+      builder: (context, state) => const SplashScreen(),
+    ),
+
+    GoRoute(
+      path: '/share/:id',
+      builder: (context, state) => ShareScreen(
+        id: state.pathParameters['id']!,
+      ),
     ),
 
     // // //ONBOARDING
@@ -25,18 +33,20 @@ final GoRouter router = GoRouter(
       routes: <RouteBase>[
         GoRoute(
           path: 'welcome',
-          builder: (context, state) => WelcomScreen(),
+          builder: (context, state) => const WelcomScreen(),
         ),
       ],
     ),
     GoRoute(
       path: '/main',
-      builder: (context, state) => CustomMainScreen(),
+      builder: (context, state) => const CustomMainScreen(),
       routes: <RouteBase>[
         GoRoute(
           name: UploadFileScreen.id,
-          path: 'upload',
-          builder: (context, state) => UploadFileScreen(),
+          path: 'upload/:tag',
+          builder: (context, state) => UploadFileScreen(
+            tag: state.pathParameters['tag']!,
+          ),
         ),
         GoRoute(
           name: ViewTimeMoment.id,

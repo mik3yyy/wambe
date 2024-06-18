@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 import 'package:wambe/settings/constants.dart';
 import 'package:dio/dio.dart';
 import 'package:wambe/settings/hive.dart';
@@ -69,11 +71,31 @@ class MediaDataProvider {
 
     // Create a list of MultipartFile objects for images
     List<MultipartFile> imageFiles = [];
-    for (String path in files) {
-      imageFiles.add(
-          await MultipartFile.fromFile(path, filename: path.split('/').last));
+    if (kIsWeb) {
+      for (String path in files) {
+        Uint8List bytes = await XFile(path).readAsBytes();
+        print("BYTES");
+        print(bytes);
+        print("------------");
+        imageFiles.add(
+          await MultipartFile.fromBytes(
+            bytes,
+            filename: path.split('/').last,
+          ),
+        );
+      }
+    } else {
+      for (String path in files) {
+        imageFiles.add(
+          await MultipartFile.fromFile(
+            path,
+            filename: path.split('/').last,
+          ),
+        );
+      }
     }
-
+    print("FILE");
+    print(imageFiles.first.contentType);
     var formData = FormData.fromMap(
       {
         'eventId': HiveFunction.getEvent().eventId,
@@ -100,3 +122,6 @@ class MediaDataProvider {
     }
   }
 }
+      // kIsWeb
+      //       ? MultipartFile.fromString(path, filename: path.split('/').last)
+      //       : 

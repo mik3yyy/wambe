@@ -1,7 +1,12 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:url_strategy/url_strategy.dart';
 import 'package:wambe/blocs/media_bloc/media_bloc.dart';
 import 'package:wambe/blocs/user_bloc/user_bloc.dart';
 import 'package:wambe/models/event.dart';
@@ -32,6 +37,7 @@ void main() async {
 
   await Hive.openBox('wambe');
   Bloc.observer = SimpleBlocObserver();
+  setPathUrlStrategy();
 
   runApp(const MyApp());
 }
@@ -42,40 +48,73 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MultiRepositoryProvider(
-      providers: [
-        RepositoryProvider<userRepoImp>(create: (context) => userRepoImp()),
-        RepositoryProvider<mediaRepoImp>(create: (context) => mediaRepoImp()),
-      ],
-      child: MultiBlocProvider(
+    return LayoutBuilder(builder: (context, constraints) {
+      if (constraints.maxWidth > 600) {
+        return MaterialApp(
+          title: 'Wambe',
+          debugShowCheckedModeBanner: false,
+          home: const Scaffold(
+            body: Center(
+              child:
+                  Text("Wambe Application is Only available on Mobile Browser"),
+            ),
+          ),
+          // routerConfig: router,
+          theme: appThemeData,
+          scrollBehavior: MaterialScrollBehavior().copyWith(
+            dragDevices: {
+              PointerDeviceKind.mouse,
+              PointerDeviceKind.touch,
+              PointerDeviceKind.stylus,
+              PointerDeviceKind.unknown
+            },
+          ),
+        );
+      }
+      return MultiRepositoryProvider(
         providers: [
-          BlocProvider(
-            create: (context) => UserBloc(
-              userRepo: context.read<userRepoImp>(),
-            ),
-          ),
-          BlocProvider(
-            create: (context) => MediaBloc(
-              mediaRepo: context.read<mediaRepoImp>(),
-            ),
-          ),
+          RepositoryProvider<userRepoImp>(create: (context) => userRepoImp()),
+          RepositoryProvider<mediaRepoImp>(create: (context) => mediaRepoImp()),
         ],
-        child: Builder(builder: (context) {
-          if (HiveFunction.userExist()) {
-            context.read<UserBloc>().add(RestoreEvent(
-                event: HiveFunction.getEvent(), user: HiveFunction.getUser()));
-          }
-          if (HiveFunction.myMomentExist()) {
-            context.read<MediaBloc>().add(RestoreMyMomentEvent());
-          }
-          return MaterialApp.router(
-            title: 'Wambe',
-            debugShowCheckedModeBanner: false,
-            routerConfig: router,
-            theme: appThemeData,
-          );
-        }),
-      ),
-    );
+        child: MultiBlocProvider(
+          providers: [
+            BlocProvider(
+              create: (context) => UserBloc(
+                userRepo: context.read<userRepoImp>(),
+              ),
+            ),
+            BlocProvider(
+              create: (context) => MediaBloc(
+                mediaRepo: context.read<mediaRepoImp>(),
+              ),
+            ),
+          ],
+          child: Builder(builder: (context) {
+            if (HiveFunction.userExist()) {
+              context.read<UserBloc>().add(RestoreEvent(
+                  event: HiveFunction.getEvent(),
+                  user: HiveFunction.getUser()));
+            }
+            if (HiveFunction.myMomentExist()) {
+              context.read<MediaBloc>().add(RestoreMyMomentEvent());
+            }
+            return MaterialApp.router(
+              title: 'Wambe',
+              debugShowCheckedModeBanner: false,
+              routerConfig: router,
+              theme: appThemeData,
+              scrollBehavior: MaterialScrollBehavior().copyWith(
+                dragDevices: {
+                  PointerDeviceKind.mouse,
+                  PointerDeviceKind.touch,
+                  PointerDeviceKind.stylus,
+                  PointerDeviceKind.unknown
+                },
+              ),
+            );
+          }),
+        ),
+      );
+    });
   }
 }

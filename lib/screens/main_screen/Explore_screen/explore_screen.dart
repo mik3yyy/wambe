@@ -179,20 +179,6 @@ class _ExploreScreenState extends State<ExploreScreen> {
                       context, "Maximum User Upload Reached");
                   return;
                 }
-                showFlexibleBottomSheet(
-                  // minHeight: 0,
-                  // initHeight: 0.5,
-                  // maxHeight: 1,
-                  // isExpand: false,
-                  bottomSheetColor: Colors.transparent,
-                  initHeight: 0.24,
-                  context: context,
-                  builder: (context, scrollController, bottomSheetOffset) {
-                    return UploadImage();
-                  },
-                  anchors: [0, 0.5, 1],
-                  isSafeArea: true,
-                );
               },
             ),
           );
@@ -242,6 +228,20 @@ class _ExploreScreenState extends State<ExploreScreen> {
                         color: Colors.redAccent,
                       ),
                     )),
+                  ),
+                ),
+              Gap(20),
+              if (HiveFunction.getEvent().eventPublic)
+                IconButton(
+                  onPressed: () async {
+                    await DevFunctions.shareUrl(
+                      "https://wambe.netlify.app/share/${HiveFunction.getEvent().eventId}",
+                      context,
+                    );
+                  },
+                  icon: Icon(
+                    Icons.share,
+                    color: Palette.darkAsh,
                   ),
                 ),
               Gap(20),

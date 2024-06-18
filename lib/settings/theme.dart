@@ -10,7 +10,7 @@ final ThemeData appThemeData = ThemeData(
   textButtonTheme: TextButtonThemeData(
     style: TextButton.styleFrom(foregroundColor: Palette.purple),
   ),
-  fontFamily: 'Inter',
+  fontFamily: 'Norms',
   buttonTheme: const ButtonThemeData(
     textTheme: ButtonTextTheme.primary,
   ),
@@ -26,7 +26,7 @@ final ThemeData appThemeData = ThemeData(
     textColor: Palette.black,
     selectedColor: Palette.grey,
     titleTextStyle: TextStyle(
-      fontFamily: 'Inter',
+      fontFamily: 'Norms',
       fontSize: 14.0,
       fontWeight: FontWeight.w500,
       color: Palette.black,
@@ -34,27 +34,27 @@ final ThemeData appThemeData = ThemeData(
   ),
   textTheme: TextTheme(
     titleLarge: TextStyle(
-        fontFamily: 'Inter',
+        fontFamily: 'Norms',
         fontSize: 16.0,
         fontWeight: FontWeight.w700,
         color: Palette.black),
     titleMedium: TextStyle(
-        fontFamily: 'Inter',
+        fontFamily: 'Norms',
         fontSize: 16,
         fontWeight: FontWeight.w500,
         color: Palette.black),
     titleSmall: TextStyle(
-        fontFamily: 'Inter',
+        fontFamily: 'Norms',
         fontSize: 18.0,
         fontWeight: FontWeight.normal,
         color: Palette.black),
     bodyLarge: TextStyle(
-        fontFamily: 'Inter',
+        fontFamily: 'Norms',
         fontSize: 16.0,
         fontWeight: FontWeight.normal,
         color: Palette.black),
     bodySmall: TextStyle(
-        fontFamily: 'Inter',
+        fontFamily: 'Norms',
         fontSize: 10.0,
         fontWeight: FontWeight.w400,
         color: Palette.black),

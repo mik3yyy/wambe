@@ -13,6 +13,7 @@ import 'package:go_router/go_router.dart';
 import 'package:wambe/blocs/media_bloc/media_bloc.dart';
 import 'package:wambe/blocs/user_bloc/user_bloc.dart';
 import 'package:wambe/global_widget/custom_button.dart';
+import 'package:wambe/global_widget/custom_text_button.dart';
 import 'package:wambe/global_widget/image_render_widget.dart';
 import 'package:wambe/screens/main_screen/Home_screen/Home_screen.dart';
 import 'package:wambe/screens/main_screen/Profile_screen/chnage_name.dart';
@@ -45,7 +46,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     children: [
                       Container(
                         height: 200,
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           image: DecorationImage(
                               image: AssetImage('assets/images/profile_bg.png'),
                               fit: BoxFit.cover),
@@ -61,31 +62,99 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           actions: [
                             IconButton(
                               onPressed: () async {
-                                final result = await showDialogAlert(
-                                  context: context,
-                                  title: 'Are you sure?',
-                                  message: 'Do you want to Log out?',
-                                  actionButtonTitle: 'Log out',
-                                  cancelButtonTitle: 'Cancel',
-                                  actionButtonTextStyle: const TextStyle(
-                                    color: Colors.red,
-                                  ),
-                                  cancelButtonTextStyle: const TextStyle(
-                                    color: Colors.black,
-                                  ),
-                                );
-                                if (result == ButtonActionType.action) {
-                                  while (context.canPop()) {
-                                    context.pop();
+                                if (kIsWeb) {
+                                  showDialog(
+                                      context: context,
+                                      builder: (_) {
+                                        return AlertDialog(
+                                          surfaceTintColor: Palette.white,
+                                          backgroundColor: Palette.white,
+                                          title: Center(
+                                              child: Text("Are you sure?")),
+                                          content: Container(
+                                            height: 70,
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.end,
+                                              children: [
+                                                Text('Do you want to Log out?'),
+                                                Gap(20),
+                                                Container(
+                                                  width:
+                                                      MediaQuery.sizeOf(context)
+                                                              .width *
+                                                          .4,
+                                                  child: Row(
+                                                    children: [
+                                                      Expanded(
+                                                          child: Center(
+                                                              child:
+                                                                  CustomTextButton(
+                                                        onPressed: () {
+                                                          context.pop();
+                                                        },
+                                                        text: "Cancel",
+                                                        color: Colors.black,
+                                                      ))),
+                                                      Expanded(
+                                                          child: Center(
+                                                              child:
+                                                                  CustomTextButton(
+                                                        onPressed: () {
+                                                          while (context
+                                                              .canPop()) {
+                                                            context.pop();
+                                                          }
+                                                          context.replace('/');
+                                                          context
+                                                              .read<UserBloc>()
+                                                              .add(
+                                                                  ClearUserEvent());
+                                                          context
+                                                              .read<MediaBloc>()
+                                                              .add(
+                                                                  ClearMediaEvent());
+                                                          HiveFunction
+                                                              .DELETEALL();
+                                                        },
+                                                        text: 'Log out',
+                                                        color: Colors.red,
+                                                      ))),
+                                                    ],
+                                                  ),
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                        );
+                                      });
+                                } else {
+                                  final result = await showDialogAlert(
+                                    context: context,
+                                    title: 'Are you sure?',
+                                    message: 'Do you want to Log out?',
+                                    actionButtonTitle: 'Log out',
+                                    cancelButtonTitle: 'Cancel',
+                                    actionButtonTextStyle: const TextStyle(
+                                      color: Colors.red,
+                                    ),
+                                    cancelButtonTextStyle: const TextStyle(
+                                      color: Colors.black,
+                                    ),
+                                  );
+                                  if (result == ButtonActionType.action) {
+                                    while (context.canPop()) {
+                                      context.pop();
+                                    }
+                                    context.replace('/');
+                                    context
+                                        .read<UserBloc>()
+                                        .add(ClearUserEvent());
+                                    context
+                                        .read<MediaBloc>()
+                                        .add(ClearMediaEvent());
+                                    HiveFunction.DELETEALL();
                                   }
-                                  context.replace('/');
-                                  context
-                                      .read<UserBloc>()
-                                      .add(ClearUserEvent());
-                                  context
-                                      .read<MediaBloc>()
-                                      .add(ClearMediaEvent());
-                                  HiveFunction.DELETEALL();
                                 }
                               },
                               icon: Icon(
@@ -162,7 +231,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   },
                   title: "Edit Details",
                 ),
-                Gap(0),
+                Gap(20),
                 // SvgPicture.asset(
                 //   'assets/svgs/ani.svg',
                 //   fit: BoxFit.fill,

@@ -14,7 +14,7 @@ class UserAdapter extends TypeAdapter<User> {
   User read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
-      for (var i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return User(
       name: fields[0] as String,

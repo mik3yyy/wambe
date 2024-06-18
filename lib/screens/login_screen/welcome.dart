@@ -6,12 +6,14 @@ import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:wambe/blocs/user_bloc/user_bloc.dart';
 import 'package:wambe/global_widget/custom_button.dart';
+import 'package:wambe/global_widget/mymessage_handler.dart';
 import 'package:wambe/global_widget/textfield.dart';
 import 'package:wambe/settings/palette.dart';
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:wambe/settings/validators.dart';
 
 class WelcomScreen extends StatefulWidget {
   const WelcomScreen({super.key});
@@ -234,13 +236,18 @@ class _WelcomScreenState extends State<WelcomScreen> {
                           emailontroller.text.isNotEmpty,
                       loading: state is UserProcessing && state.isSignInEvent,
                       onTap: () {
-                        context.read<UserBloc>().add(
-                              WelcomeUserEvent(
-                                eventId: state.event!.eventId.toString(),
-                                name: welcomeController.text.trim(),
-                                email: emailontroller.text.trim(),
-                              ),
-                            );
+                        if (emailontroller.text.isValidEmail()) {
+                          context.read<UserBloc>().add(
+                                WelcomeUserEvent(
+                                  eventId: state.event!.eventId.toString(),
+                                  name: welcomeController.text.trim(),
+                                  email: emailontroller.text.trim(),
+                                ),
+                              );
+                        } else {
+                          MyMessageHandler.showSnackBar(
+                              context, "Enter a valid email address");
+                        }
                         // context.replace('/main');
                       },
                       title: "Continue",

@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -12,22 +14,26 @@ import 'package:wambe/settings/hive.dart';
 import 'package:wambe/settings/palette.dart';
 
 class UploadFileScreen extends StatefulWidget {
-  const UploadFileScreen({
-    super.key,
-  });
+  const UploadFileScreen({super.key, required this.tag});
+  final String tag;
   static String id = 'Upload_sreen';
   @override
   State<UploadFileScreen> createState() => _UploadFileScreenState();
 }
 
 class _UploadFileScreenState extends State<UploadFileScreen> {
+  bool loaded = false;
   int _currentIndex = 0;
   final PageController _pageController = PageController(initialPage: 0);
+  List<Uint8List> uint8ListImages = [];
+
   chooseGallery() async {
     try {
       var images = await DevFunctions.pickedImageFromGallery(context);
       if (images.isNotEmpty) {
         context.read<MediaBloc>().add(AddImageEvent(images: images));
+        changeImages(context.read<MediaBloc>().state.selectedImages ?? []);
+
         setState(() {});
 
         // context.read<MediaBloc>().add(UploadFilesEvent());
@@ -35,6 +41,35 @@ class _UploadFileScreenState extends State<UploadFileScreen> {
     } catch (e) {
       MyMessageHandler.showSnackBar(context, "Error Adding Image");
     }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    print("_-------------");
+    print(context.read<MediaBloc>().state.selectedImages?.length);
+    print("_-------------");
+
+    changeImages(context.read<MediaBloc>().state.selectedImages ?? []);
+  }
+
+  void changeImages(List<String> images) async {
+    List<Uint8List> list = [];
+    for (int i = 0; i < images.length; i++) {
+      Uint8List image = await File(
+        images[i],
+      ).readAsBytes();
+      list.add(image);
+    }
+    setState(() {
+      uint8ListImages = list;
+      loaded = true;
+    });
+    print("-----LIST-------");
+    print(list);
+    print("--------------");
+    print(loaded);
   }
 
   @override
@@ -53,6 +88,13 @@ class _UploadFileScreenState extends State<UploadFileScreen> {
       },
       builder: (context, state) {
         List<String> images = state.selectedImages ?? [];
+        // if (loaded == false) {
+        //   return Scaffold(
+        //     body: Center(
+        //       child: CircularProgressIndicator(),
+        //     ),
+        //   );
+        // }
 
         if (state is MediaProcessing && state.isUploading) {
           return Scaffold(
@@ -121,6 +163,16 @@ class _UploadFileScreenState extends State<UploadFileScreen> {
                       });
                     },
                     itemBuilder: (context, index) {
+                      if (kIsWeb) {
+                        return Container(
+                          // height: 200,
+                          child: Image.network(
+                            images[index],
+                            fit: BoxFit.contain,
+                            filterQuality: FilterQuality.none,
+                          ),
+                        );
+                      }
                       return Container(
                         // height: 200,
                         child: Image.file(
@@ -209,13 +261,25 @@ class _UploadFileScreenState extends State<UploadFileScreen> {
                                           child: ClipRRect(
                                             borderRadius:
                                                 BorderRadius.circular(8),
-                                            child: Image.file(
-                                              File(
-                                                images[index],
-                                              ),
-                                              fit: BoxFit.cover,
-                                              filterQuality: FilterQuality.none,
-                                            ),
+                                            child: kIsWeb
+                                                ? Image.network(
+                                                    //                            uint8ListImages[index],
+
+                                                    images[index],
+                                                    fit: BoxFit.cover,
+                                                    filterQuality:
+                                                        FilterQuality.none,
+                                                  )
+                                                : Image.file(
+                                                    //                            uint8ListImages[index],
+
+                                                    File(
+                                                      images[index],
+                                                    ),
+                                                    fit: BoxFit.cover,
+                                                    filterQuality:
+                                                        FilterQuality.none,
+                                                  ),
                                           ),
                                         ),
                                       ),
@@ -249,13 +313,23 @@ class _UploadFileScreenState extends State<UploadFileScreen> {
                                     ),
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(8),
-                                      child: Image.file(
-                                        File(
-                                          images[index],
-                                        ),
-                                        fit: BoxFit.cover,
-                                        filterQuality: FilterQuality.none,
-                                      ),
+                                      child: kIsWeb
+                                          ? Image.network(
+                                              //                            uint8ListImages[index],
+
+                                              images[index],
+                                              fit: BoxFit.cover,
+                                              filterQuality: FilterQuality.none,
+                                            )
+                                          : Image.file(
+                                              //                            uint8ListImages[index],
+
+                                              File(
+                                                images[index],
+                                              ),
+                                              fit: BoxFit.cover,
+                                              filterQuality: FilterQuality.none,
+                                            ),
                                     ),
                                   ),
                                 );

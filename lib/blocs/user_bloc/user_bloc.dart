@@ -83,15 +83,21 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       Map<String, dynamic> response = await userRepo.signIn(
         event: event.event,
       );
-
+      print(response);
       if (response['success']) {
         List<User> users = [];
 
         for (var res in response['data']['eventUsers']) {
           users.add(User.fromJson(res));
         }
+        print("----------");
         HiveFunction.insertEventUsers(users);
+        print("----------");
+        print(response['data']['tags']);
+        HiveFunction.insertTags(response['data']['tags']);
+        print("----------");
 
+        print(HiveFunction.getTags());
         emit(
           userLoaded(
             event: Event.fromJson(

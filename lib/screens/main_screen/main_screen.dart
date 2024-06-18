@@ -1,14 +1,18 @@
 import 'package:bottom_sheet/bottom_sheet.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:wambe/blocs/media_bloc/media_bloc.dart';
 import 'package:wambe/global_widget/mymessage_handler.dart';
 import 'package:wambe/screens/main_screen/Explore_screen/explore_screen.dart';
 import 'package:wambe/screens/main_screen/Home_screen/Home_screen.dart';
 import 'package:wambe/screens/main_screen/Profile_screen/profile_screen.dart';
+import 'package:wambe/screens/main_screen/local_widget/set_tag.dart';
 import 'package:wambe/screens/main_screen/local_widget/upload_image_popup.dart';
 import 'package:wambe/screens/main_screen/roundup_screen/event_round_up.dart';
 import 'package:wambe/screens/main_screen/roundup_screen/user_round_up.dart';
+import 'package:wambe/screens/share_screen/share_screen.dart';
 import 'package:wambe/settings/dev_function.dart';
 import 'package:wambe/settings/hive.dart';
 import 'package:wambe/settings/palette.dart';
@@ -46,7 +50,10 @@ class _CustomMainScreenState extends State<CustomMainScreen> {
   void didChangeDependencies() {
     // TODO: implement didChangeDependencies
     super.didChangeDependencies();
-    Future.delayed(Duration(seconds: 1), () {
+    context.read<MediaBloc>().add(GetEventRoundup());
+    context.read<MediaBloc>().add(GetuserRoundup());
+
+    Future.delayed(Duration(seconds: 2), () {
       init();
     });
   }
@@ -57,7 +64,7 @@ class _CustomMainScreenState extends State<CustomMainScreen> {
       const HomeScreen(),
       const ExploreScreen(),
       const ProfileScreen(),
-      const ProfileScreen()
+      ShareScreen(id: HiveFunction.getEvent().eventId)
     ];
 
     return Scaffold(
@@ -69,8 +76,8 @@ class _CustomMainScreenState extends State<CustomMainScreen> {
                 (HiveFunction.getEvent().eventEnd)
             ? Theme.of(context).colorScheme.primary.withOpacity(.5)
             : Theme.of(context).colorScheme.primary,
-        shape: CircleBorder(),
-        child: Icon(Icons.add),
+        shape: const CircleBorder(),
+        child: const Icon(Icons.add),
         //params
         onPressed: () {
           if (DevFunctions.checkMediaCount(HiveFunction.getTotalUpload(),
@@ -85,15 +92,17 @@ class _CustomMainScreenState extends State<CustomMainScreen> {
             return;
           }
           if (HiveFunction.getEvent().eventEnd) {
-            MyMessageHandler.showSnackBar(context, "Event has Ended");
+            MyMessageHandler.showSnackBar(context, "Event has Ended",
+                showError: false);
             return;
           }
+
           showFlexibleBottomSheet(
             bottomSheetColor: Colors.transparent,
             initHeight: 0.3,
             context: context,
             builder: (context, scrollController, bottomSheetOffset) {
-              return UploadImage();
+              return SetTagSheet();
             },
             anchors: [0, 0.5, 1],
             isSafeArea: true,
@@ -140,12 +149,12 @@ class _CustomMainScreenState extends State<CustomMainScreen> {
                   label: 'Explore',
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.share),
-                  label: 'Share',
-                ),
-                BottomNavigationBarItem(
                   icon: Icon(Icons.person),
                   label: 'Profile',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.share),
+                  label: 'Share',
                 ),
               ],
               iconSize: 22,

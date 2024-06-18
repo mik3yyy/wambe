@@ -27,6 +27,7 @@ class MediaBloc extends Bloc<MediaEvent, MediaState> {
     on<GetuserRoundup>(_getUserMedia);
     on<RestoreMyMomentEvent>(_restoreMyMonet);
   }
+
   _restoreMyMonet(RestoreMyMomentEvent event, Emitter emit) async {
     MediaResponse response = HiveFunction.getMyMoment();
     emit(
@@ -223,8 +224,8 @@ class MediaBloc extends Bloc<MediaEvent, MediaState> {
           media: state.media),
     );
 
-    emit(MediaProcessing(
-        selectedImages: state.selectedImages, media: state.media));
+    // emit(MediaProcessing(
+    //     selectedImages: state.selectedImages, media: state.media));
     if (event.add) {
       page++;
     } else {

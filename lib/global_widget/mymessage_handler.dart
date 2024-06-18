@@ -20,7 +20,9 @@ enum options {
 
 class MyMessageHandler {
   static void showSnackBar(BuildContext context, String message,
-      {options option = options.failure, String? title}) {
+      {options option = options.failure,
+      String? title,
+      bool showError = true}) {
     SnackBar? snackBar;
     // Grock.snackBar(
     //   title: "Snackbar",
@@ -70,7 +72,7 @@ class MyMessageHandler {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    "Error: $message",
+                    showError ? "Error: $message" : message,
                     style: const TextStyle(color: Colors.white, fontSize: 16),
                   ),
                 ),

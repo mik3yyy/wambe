@@ -11,7 +11,8 @@ import 'package:wambe/settings/dev_function.dart';
 import 'package:wambe/settings/palette.dart';
 
 class UploadImage extends StatefulWidget {
-  const UploadImage({super.key});
+  const UploadImage({super.key, required this.tag});
+  final String tag;
 
   @override
   State<UploadImage> createState() => _UploadImageState();
@@ -44,9 +45,8 @@ class _UploadImageState extends State<UploadImage> {
           context.read<MediaBloc>().add(AddImageEvent(images: images));
           context.pop();
 
-          context.goNamed(
-            UploadFileScreen.id,
-          );
+          context.goNamed(UploadFileScreen.id,
+              pathParameters: {'tag': widget.tag});
 
           // context.read<MediaBloc>().add(UploadFilesEvent());
         }

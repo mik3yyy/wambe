@@ -13,6 +13,7 @@ import 'package:gap/gap.dart';
 import 'package:gif_view/gif_view.dart';
 import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:lottie/lottie.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:wambe/blocs/media_bloc/media_bloc.dart';
 import 'package:wambe/blocs/user_bloc/user_bloc.dart';
@@ -143,51 +144,53 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             body: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                children: [
-                  Expanded(
-                    child: Builder(
-                      builder: (context) {
-                        int indexList = 0;
-                        return MasonryGridView.count(
-                          itemCount: 10,
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 10,
-                          mainAxisSpacing: 10,
-                          itemBuilder: (ctx, index) {
-                            int postion = index % 4;
-                            return GestureDetector(
-                              onTap: () {},
-                              child: postion == 1 || postion == 3
-                                  ? Shimmer.fromColors(
-                                      baseColor: Colors.grey.shade300,
-                                      highlightColor: Colors.grey.shade100,
-                                      child: Container(
-                                        height: 176,
-                                        decoration: BoxDecoration(
-                                            color: Colors.black,
-                                            borderRadius:
-                                                BorderRadius.circular(10)),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: Builder(
+                        builder: (context) {
+                          int indexList = 0;
+                          return MasonryGridView.count(
+                            itemCount: 10,
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 10,
+                            mainAxisSpacing: 10,
+                            itemBuilder: (ctx, index) {
+                              int postion = index % 4;
+                              return GestureDetector(
+                                onTap: () {},
+                                child: postion == 1 || postion == 3
+                                    ? Shimmer.fromColors(
+                                        baseColor: Colors.grey.shade300,
+                                        highlightColor: Colors.grey.shade100,
+                                        child: Container(
+                                          height: 176,
+                                          decoration: BoxDecoration(
+                                              color: Colors.black,
+                                              borderRadius:
+                                                  BorderRadius.circular(10)),
+                                        ),
+                                      )
+                                    : Shimmer.fromColors(
+                                        baseColor: Colors.grey.shade300,
+                                        highlightColor: Colors.grey.shade100,
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                              color: Colors.black,
+                                              borderRadius:
+                                                  BorderRadius.circular(10)),
+                                          height: 246,
+                                        ),
                                       ),
-                                    )
-                                  : Shimmer.fromColors(
-                                      baseColor: Colors.grey.shade300,
-                                      highlightColor: Colors.grey.shade100,
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                            color: Colors.black,
-                                            borderRadius:
-                                                BorderRadius.circular(10)),
-                                        height: 246,
-                                      ),
-                                    ),
-                            );
-                          },
-                        );
-                      },
+                              );
+                            },
+                          );
+                        },
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           );
@@ -240,11 +243,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     )),
                   ),
                 ),
-              Gap(20),
-              Icon(
-                Icons.share,
-                color: Palette.darkAsh,
-              ),
+              // Gap(20),
+              // Icon(
+              //   Icons.share,
+              //   color: Palette.darkAsh,
+              // ),
               Gap(20),
             ],
           ),
@@ -266,14 +269,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        GifView.asset(
-                          'assets/gifs/empty_home.gif',
+                        Lottie.asset(
+                          'assets/gifs/empty.json',
                           width: 200,
-                          height: 280,
-                          fit: BoxFit.cover,
-
-                          // frameRate: 30, // default is 15 FPS
-                        ),
+                          height: 200,
+                          fit: BoxFit.fill,
+                        )
                       ],
                     ),
                     const Gap(20),
@@ -523,9 +524,12 @@ class _ImageDialogState extends State<ImageDialog> {
                     child: Container(
                       padding: EdgeInsets.symmetric(horizontal: 10),
                       // color: Colors.transparent,
-                      child: ImageRenderWidget.network(
-                        imageUrl: widget.images[index].url,
-                        fit: BoxFit.contain,
+                      child: Visibility(
+                        visible: true,
+                        child: ImageRenderWidget.network(
+                          imageUrl: widget.images[index].url,
+                          fit: BoxFit.contain,
+                        ),
                       ),
                     ),
                   );
