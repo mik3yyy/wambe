@@ -1,6 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:wambe/global_widget/image_render_widget.dart';
 import 'package:wambe/screens/main_screen/Home_screen/Home_screen.dart';
+import 'package:wambe/screens/share_screen/provider.dart';
 import 'package:wambe/screens/share_screen/share_function.dart';
+import 'package:wambe/screens/share_screen/view_detial.dart';
+import 'package:wambe/settings/hive.dart';
+import 'package:wambe/settings/palette.dart';
 
 class ShareScreen extends StatefulWidget {
   const ShareScreen({super.key, required this.id});
@@ -11,103 +21,88 @@ class ShareScreen extends StatefulWidget {
 
 class _ShareScreenState extends State<ShareScreen> {
   final ScrollController _scrollController = ScrollController();
+  String name = "Event";
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    ShareFunction.getData(id: widget.id, context: context);
+  }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future:
-          ShareFunction.getData(id: widget.id, pageNumber: 1, pageSized: 20),
-      builder: (context, snapshot) {
-        var mediaEntries = snapshot.data?.entries.toList() ?? [];
-        return Scaffold(
-          appBar: AppBar(
-            title: const Text("Event Highlight"),
+    var shareProvider = Provider.of<ShareProvider>(context, listen: true);
+    if (shareProvider.media == null) {
+      return Scaffold(
+        appBar: AppBar(
+          centerTitle: false,
+          title: Shimmer.fromColors(
+            baseColor: Colors.grey.shade300,
+            highlightColor: Colors.grey.shade100,
+            child: Text(
+              "Event Highlight",
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.primary,
+                fontWeight: FontWeight.w700,
+                fontSize: 16,
+              ),
+            ),
           ),
-          body: RefreshIndicator(
-            onRefresh: () async {
-              // context.read<MediaBloc>().add(
-              //       LoadMediaEvent(
-              //           eventId: Hi
-              // veFunction.getEvent().eventId.toString()),
-              //
-              await Future.delayed(Duration(seconds: 2));
-              //  );
-              setState(() {});
-            },
+          actions: [
+            Shimmer.fromColors(
+              baseColor: Colors.grey.shade300,
+              highlightColor: Colors.grey.shade100,
+              child: Icon(
+                Icons.share,
+                color: Palette.darkAsh,
+              ),
+            ),
+            Gap(20),
+          ],
+        ),
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: SingleChildScrollView(
             child: Column(
               children: [
                 Expanded(
-                  child: ListView.builder(
-                    controller: _scrollController,
-                    itemCount: mediaEntries.length,
-                    physics: AlwaysScrollableScrollPhysics(),
-                    itemBuilder: (context, index) {
-                      final time = mediaEntries.reversed.toList()[index].key;
-                      var mediaList =
-                          mediaEntries.reversed.toList()[index].value;
-
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(time,
-                                  style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold)),
-                            ),
-                            GridView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: mediaList.length,
-                              gridDelegate:
-                                  const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 3,
-                                mainAxisSpacing: 8.0,
-                                crossAxisSpacing: 8.0,
-                              ),
-                              itemBuilder: (context, mediaIndex) {
-                                return GestureDetector(
-                                  onTap: () {
-                                    showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return ImageDialog(
-                                          images: mediaList,
-                                          index: mediaIndex,
-                                        );
-                                      },
-                                    );
-                                  },
-                                  child: Stack(
-                                    children: [
-                                      Positioned.fill(
-                                        child: ClipRRect(
+                  child: Builder(
+                    builder: (context) {
+                      int indexList = 0;
+                      return MasonryGridView.count(
+                        itemCount: 10,
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 10,
+                        mainAxisSpacing: 10,
+                        itemBuilder: (ctx, index) {
+                          int postion = index % 4;
+                          return GestureDetector(
+                            onTap: () {},
+                            child: postion == 1 || postion == 3
+                                ? Shimmer.fromColors(
+                                    baseColor: Colors.grey.shade300,
+                                    highlightColor: Colors.grey.shade100,
+                                    child: Container(
+                                      height: 176,
+                                      decoration: BoxDecoration(
+                                          color: Colors.black,
                                           borderRadius:
-                                              BorderRadius.circular(8),
-                                          child: Image.network(
-                                              mediaList[mediaIndex].url,
-                                              fit: BoxFit.cover),
-                                        ),
-                                      ),
-                                      // Positioned(
-                                      //   bottom: 10,
-                                      //   right: 10,
-                                      //   child: Text(
-                                      //     DevFunctions.searchByUUID(
-                                      //         mediaList[mediaIndex].uuid),
-                                      //     style: TextStyle(fontSize: 10),
-                                      //   ),
-                                      // )
-                                    ],
+                                              BorderRadius.circular(10)),
+                                    ),
+                                  )
+                                : Shimmer.fromColors(
+                                    baseColor: Colors.grey.shade300,
+                                    highlightColor: Colors.grey.shade100,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                          color: Colors.black,
+                                          borderRadius:
+                                              BorderRadius.circular(10)),
+                                      height: 246,
+                                    ),
                                   ),
-                                );
-                              },
-                            ),
-                          ],
-                        ),
+                          );
+                        },
                       );
                     },
                   ),
@@ -115,8 +110,175 @@ class _ShareScreenState extends State<ShareScreen> {
               ],
             ),
           ),
-        );
-      },
+        ),
+      );
+    }
+    var mediaEntries = shareProvider.media?.entries.toList() ?? [];
+    mediaEntries = mediaEntries.where(
+          (element) {
+            // bool check = false;
+            // for (Media media in element.value) {
+            //   if (media.uuid == HiveFunction.getUser().userId) {
+            //     return true;
+            //   }
+            // }
+            print(element);
+            return shareProvider.media?[element.key]?.isNotEmpty ?? false;
+          },
+        ).toList() ??
+        [];
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+            "${HiveFunction.ueventExist() ? HiveFunction.getEvent().eventName : name} Highlight"),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: RefreshIndicator(
+          onRefresh: () async {
+            ShareFunction.getData(id: widget.id, context: context);
+
+            await Future.delayed(Duration(seconds: 2));
+          },
+          child: Column(
+            children: [
+              Expanded(
+                child: Builder(
+                  builder: (context) {
+                    int indexList = 0;
+                    return MasonryGridView.count(
+                      itemCount: mediaEntries.length,
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 20,
+                      mainAxisSpacing: 10,
+                      itemBuilder: (ctx, index) {
+                        final tag = mediaEntries.toList()[index].key;
+                        var mediaList = mediaEntries.toList()[index].value;
+                        // mediaList = mediaList
+                        //     .where(
+                        //       (element) =>
+                        //           element.uuid ==
+                        //           HiveFunction.getUser().userId,
+                        //     )
+                        //     .toList();
+                        int postion = index % 4;
+                        print(postion);
+                        // if (skeys.isNotEmpty) {
+                        //   if (skeys.contains(time) == false) {
+                        //     return Container();
+                        //   }
+                        // }
+                        return GestureDetector(
+                          onTap: () {
+                            context.pushNamed(
+                              ViewTag.id,
+                              pathParameters: {
+                                'tag': tag,
+                                'id': widget.id,
+                              },
+                            );
+                          },
+                          child: postion == 1 || postion == 3
+                              ? Container(
+                                  height: 176,
+                                  child: Stack(
+                                    children: [
+                                      Positioned.fill(
+                                        child: SizedBox(
+                                          // height: 176,
+                                          child: ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                            child: ImageRenderWidget.network(
+                                              imageUrl: mediaList.first.url,
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Positioned(
+                                        top: 10,
+                                        left: 10,
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black
+                                                    .withOpacity(0.2),
+                                                spreadRadius: 2,
+                                                blurRadius: 20,
+                                                offset: Offset(0, 1),
+                                              ),
+                                            ],
+                                          ),
+                                          child: Text(
+                                            tag,
+                                            style: TextStyle(
+                                              fontSize: 25,
+                                              fontWeight: FontWeight.w600,
+                                              color: Palette.white,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : SizedBox(
+                                  height: 246,
+                                  child: Stack(
+                                    children: [
+                                      Positioned.fill(
+                                        child: SizedBox(
+                                          // height: 176,
+                                          child: ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                            child: ImageRenderWidget.network(
+                                              imageUrl: mediaList.first.url,
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Positioned(
+                                        top: 10,
+                                        left: 10,
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black
+                                                    .withOpacity(0.2),
+                                                spreadRadius: 2,
+                                                blurRadius: 20,
+                                                offset: Offset(0, 1),
+                                              ),
+                                            ],
+                                          ),
+                                          child: Text(
+                                            tag,
+                                            style: TextStyle(
+                                              fontSize: 25,
+                                              fontWeight: FontWeight.w600,
+                                              color: Palette.white,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

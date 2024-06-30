@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:url_strategy/url_strategy.dart';
 import 'package:wambe/blocs/media_bloc/media_bloc.dart';
 import 'package:wambe/blocs/user_bloc/user_bloc.dart';
@@ -16,6 +17,7 @@ import 'package:wambe/models/user.dart';
 import 'package:wambe/observer.dart';
 import 'package:wambe/repository/media_repo/media_implementation.dart';
 import 'package:wambe/repository/user_repo/user_implementation.dart';
+import 'package:wambe/screens/share_screen/provider.dart';
 import 'package:wambe/settings/hive.dart';
 import 'package:wambe/settings/router.dart';
 import 'package:wambe/settings/theme.dart';
@@ -39,7 +41,14 @@ void main() async {
   Bloc.observer = SimpleBlocObserver();
   setPathUrlStrategy();
 
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ShareProvider()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

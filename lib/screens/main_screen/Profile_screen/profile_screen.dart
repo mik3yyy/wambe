@@ -5,11 +5,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_boring_avatars/flutter_boring_avatars.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:fluttermoji/fluttermojiCircleAvatar.dart';
+// import 'package:fluttermoji/fluttermojiCircleAvatar.dart';
 import 'package:gap/gap.dart';
 import 'package:gif_view/gif_view.dart';
 import 'package:go_router/go_router.dart';
+import 'package:random_avatar/random_avatar.dart';
 import 'package:wambe/blocs/media_bloc/media_bloc.dart';
 import 'package:wambe/blocs/user_bloc/user_bloc.dart';
 import 'package:wambe/global_widget/custom_button.dart';
@@ -29,6 +31,15 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  final colors = [
+    Color(0xffA3A948),
+    Color(0xffEDB92E),
+    Color(0xffF85931),
+    Color(0xffCE1836),
+    Color(0xff009989)
+  ];
+  String svgCode = RandomAvatarString('saytoonz', trBackground: false);
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<MediaBloc, MediaState>(
@@ -170,22 +181,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         bottom: 0,
                         left: MediaQuery.of(context).size.width / 2 - 50,
                         child: Container(
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.primary,
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                          ),
+                          // decoration: BoxDecoration(
+                          //   color: Theme.of(context).colorScheme.primary,
+                          //   borderRadius: BorderRadius.circular(10),
+                          //   border: Border.all(
+                          //     color: Theme.of(context).colorScheme.primary,
+                          //   ),
+                          // ),
                           child: ClipRRect(
                               borderRadius: BorderRadius.circular(10),
-                              child: FluttermojiCircleAvatar(
-                                radius: 55,
+                              child: Container(
+                                height: 100,
+                                // color: Colors.black,
+                                child: SvgPicture.string(
+                                  svgCode,
+                                  // width: 100,
+                                  height: 100,
+                                ),
+                                // child: AnimatedBoringAvatars(
+                                //   duration: const Duration(milliseconds: 300),
+                                //   name: "Maria Mitchell",
+                                //   colors: colors,
+                                //   type: BoringAvatarsType.bauhaus,
+                                // ),
                               )
                               //  Image.asset(
                               //   "assets/images/profile_bg.png",
-                              //   width: 100,
-                              //   height: 100,
+                              // width: 100,
+                              // height: 100,
                               //   fit: BoxFit.fill,
                               // ),
                               ),
@@ -239,18 +262,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 //     currentColor: Theme.of(context).colorScheme.primary,
                 //   ),
                 // ),
-                if (DevFunctions.getAllMediaForUser(state.media).isEmpty) ...[
+                if (HiveFunction.getTags().isEmpty) ...[
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      GifView.asset(
-                        'assets/gifs/empty_home.gif',
-                        width: 200,
+                      ImageRenderWidget.asset(
+                        imagePath: 'assets/images/empty.png',
+                        width: 280,
                         height: 280,
                         fit: BoxFit.cover,
-
-                        // frameRate: 30, // default is 15 FPS
                       ),
+                      // GifView.asset(
+                      //   'assets/gifs/empty_home.gif',
+                      //   width: 200,
+                      //   height: 280,
+                      //   fit: BoxFit.cover,
+
+                      //   // frameRate: 30, // default is 15 FPS
+                      // ),
                     ],
                   ),
                   const Gap(20),

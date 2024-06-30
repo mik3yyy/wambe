@@ -5,13 +5,17 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:wambe/blocs/media_bloc/media_bloc.dart';
 import 'package:wambe/global_widget/custom_image_selector.dart';
+import 'package:wambe/global_widget/image_render_widget.dart';
 import 'package:wambe/global_widget/mymessage_handler.dart';
 import 'package:wambe/screens/main_screen/Home_screen/Home_screen.dart';
+import 'package:wambe/screens/main_screen/Home_screen/view_time.dart';
 import 'package:wambe/settings/dev_function.dart';
 import 'package:wambe/settings/hive.dart';
 import 'package:wambe/settings/palette.dart';
@@ -33,39 +37,28 @@ class _ExploreScreenState extends State<ExploreScreen> {
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
-    if (context.read<MediaBloc>().state.media == null) {
-      context.read<MediaBloc>().add(
-            LoadMediaEvent(eventId: HiveFunction.getEvent().eventId.toString()),
-          );
-    }
+    context.read<MediaBloc>().add(EventMediaTag());
+    // if (context.read<MediaBloc>().state.media == null) {
+    //   context.read<MediaBloc>().add(
+    //         LoadMediaEvent(eventId: HiveFunction.getEvent().eventId.toString()),
+    //       );
+    // }
   }
 
   void _onScroll() {
-    if (_scrollController.position.extentAfter < _scrollThreshold) {
-      if (context.read<MediaBloc>().state is! MediaProcessing &&
-          DevFunctions.checkMediaCount(HiveFunction.getTotalUpload(),
-                  int.parse(HiveFunction.getEvent().uploadLimit)) ==
-              false) {
-        context.read<MediaBloc>().add(
-              LoadMediaEvent(
-                add: true,
-                eventId: HiveFunction.getEvent().eventId.toString(),
-              ),
-            );
-      }
-    }
-  }
-
-  final Set<int> selectedImageIds = Set<int>();
-
-  void toggleSelection(int id) {
-    setState(() {
-      if (selectedImageIds.contains(id)) {
-        selectedImageIds.remove(id);
-      } else {
-        selectedImageIds.add(id);
-      }
-    });
+    // if (_scrollController.position.extentAfter < _scrollThreshold) {
+    //   if (context.read<MediaBloc>().state is! MediaProcessing &&
+    //       DevFunctions.checkMediaCount(HiveFunction.getTotalUpload(),
+    //               int.parse(HiveFunction.getEvent().uploadLimit)) ==
+    //           false) {
+    //     context.read<MediaBloc>().add(
+    //           LoadMediaEvent(
+    //             add: true,
+    //             eventId: HiveFunction.getEvent().eventId.toString(),
+    //           ),
+    //         );
+    //   }
+    // }
   }
 
   @override
@@ -78,7 +71,20 @@ class _ExploreScreenState extends State<ExploreScreen> {
         // TODO: implement listener
       },
       builder: (context, state) {
-        final mediaEntries = state.media?.entries.toList() ?? [];
+        // final mediaEntries = state.media?.entries.toList() ?? [];
+        final mediaEntries = state.media?.entries.where(
+              (element) {
+                // bool check = false;
+                // for (Media media in element.value) {
+                //   if (media.uuid == HiveFunction.getUser().userId) {
+                //     return true;
+                //   }
+                // }
+                print(element);
+                return state.media?[element.key]?.isNotEmpty ?? false;
+              },
+            ).toList() ??
+            [];
 
         if (state is MediaProcessing &&
             state.isFetching &&
@@ -183,6 +189,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
             ),
           );
         }
+        print(HiveFunction.getTags().isEmpty);
+        print(" VIVKFDBIOVBNR;E");
         return Scaffold(
           appBar: AppBar(
             centerTitle: false,
@@ -196,46 +204,12 @@ class _ExploreScreenState extends State<ExploreScreen> {
               ),
             ),
             actions: [
-              if (HiveFunction.getUser().eventOwner)
-                InkWell(
-                  onTap: () async {
-                    final result = await showDialogAlert(
-                      context: context,
-                      title: 'Are you sure?',
-                      message: 'Do you want to Delete?',
-                      actionButtonTitle: 'Delete',
-                      cancelButtonTitle: 'Cancel',
-                      actionButtonTextStyle: const TextStyle(
-                        color: Colors.red,
-                      ),
-                      cancelButtonTextStyle: const TextStyle(
-                        color: Colors.black,
-                      ),
-                    );
-                    if (result == ButtonActionType.action) {
-                      context.read<MediaBloc>().add(
-                          DeleteMediaEvent(ids: selectedImageIds.toList()));
-                    }
-                  },
-                  child: Container(
-                    height: 30,
-                    color: Colors.redAccent.withOpacity(.1),
-                    padding: EdgeInsets.symmetric(horizontal: 10),
-                    child: Center(
-                        child: Text(
-                      "Delete",
-                      style: TextStyle(
-                        color: Colors.redAccent,
-                      ),
-                    )),
-                  ),
-                ),
-              Gap(20),
-              if (HiveFunction.getEvent().eventPublic)
+              if (HiveFunction.getEvent().eventPublic ||
+                  HiveFunction.getUser().eventOwner)
                 IconButton(
                   onPressed: () async {
                     await DevFunctions.shareUrl(
-                      "https://wambe.netlify.app/share/${HiveFunction.getEvent().eventId}",
+                      "https://beta.wambe.co/share/${HiveFunction.getEvent().eventId}",
                       context,
                     );
                   },
@@ -247,116 +221,186 @@ class _ExploreScreenState extends State<ExploreScreen> {
               Gap(20),
             ],
           ),
-          body: RefreshIndicator(
-            onRefresh: () async {
-              context.read<MediaBloc>().add(
-                    LoadMediaEvent(
-                        eventId: HiveFunction.getEvent().eventId.toString()),
-                  );
-              await Future.delayed(Duration(seconds: 2));
-            },
-            child: Column(
-              children: [
-                Expanded(
-                  child: ListView.builder(
-                    controller: _scrollController,
-                    itemCount: mediaEntries.length,
-                    physics: AlwaysScrollableScrollPhysics(),
-                    itemBuilder: (context, index) {
-                      final time = mediaEntries.reversed.toList()[index].key;
-                      var mediaList =
-                          mediaEntries.reversed.toList()[index].value;
+          body: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: RefreshIndicator(
+              onRefresh: () async {
+                context.read<MediaBloc>().add(EventMediaTag());
 
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(time,
-                                  style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold)),
-                            ),
-                            GridView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: mediaList.length,
-                              gridDelegate:
-                                  const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 3,
-                                mainAxisSpacing: 8.0,
-                                crossAxisSpacing: 8.0,
-                              ),
-                              itemBuilder: (context, mediaIndex) {
-                                return GestureDetector(
-                                  onTap: () {
-                                    showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return ImageDialog(
-                                          images: mediaList,
-                                          index: mediaIndex,
-                                        );
-                                      },
-                                    );
-                                  },
-                                  child: Stack(
-                                    children: [
-                                      Positioned.fill(
-                                        child: HiveFunction.getUser().eventOwner
-                                            ? SelectableImageWidget(
-                                                image: mediaList[mediaIndex],
-                                                isSelected:
-                                                    selectedImageIds.contains(
-                                                        mediaList[mediaIndex]
-                                                            .id),
-                                                onSelect: toggleSelection,
-                                                isVisible: false,
-                                              )
-                                            : ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                                child: Image.network(
-                                                    mediaList[mediaIndex].url,
-                                                    fit: BoxFit.cover),
+                await Future.delayed(Duration(seconds: 2));
+              },
+              child: Column(
+                children: [
+                  if (HiveFunction.getTags().isEmpty) ...[
+                    Container(
+                      width: double.infinity,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          ImageRenderWidget.asset(
+                            imagePath: 'assets/images/empty.png',
+                            width: 280,
+                            height: 240,
+                            fit: BoxFit.cover,
+                          ),
+                          // GifView.asset(
+                          //   'assets/gifs/empty_home.gif',
+                          //   width: 200,
+                          //   height: 280,
+                          //   fit: BoxFit.cover,
+
+                          //   // frameRate: 30, // default is 15 FPS
+                          // ),
+                        ],
+                      ),
+                    ),
+                    const Gap(20),
+                    Text(
+                      "Add images from your favourite moments",
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontWeight: FontWeight.w600),
+                    ),
+                  ] else ...[
+                    Expanded(
+                      child: Builder(
+                        builder: (context) {
+                          int indexList = 0;
+                          return MasonryGridView.count(
+                            itemCount: mediaEntries.length,
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 20,
+                            mainAxisSpacing: 10,
+                            itemBuilder: (ctx, index) {
+                              final tag = mediaEntries.toList()[index].key;
+                              var mediaList =
+                                  mediaEntries.toList()[index].value;
+                              // mediaList = mediaList
+                              //     .where(
+                              //       (element) =>
+                              //           element.uuid ==
+                              //           HiveFunction.getUser().userId,
+                              //     )
+                              //     .toList();
+                              int postion = index % 4;
+                              print(postion);
+                              // if (skeys.isNotEmpty) {
+                              //   if (skeys.contains(time) == false) {
+                              //     return Container();
+                              //   }
+                              // }
+                              return GestureDetector(
+                                onTap: () {
+                                  context.pushNamed(
+                                    ViewTimeMoment.id,
+                                    queryParameters: {'time': tag},
+                                  );
+                                },
+                                child: postion == 1 || postion == 3
+                                    ? Container(
+                                        height: 176,
+                                        child: Stack(
+                                          children: [
+                                            Positioned.fill(
+                                              child: SizedBox(
+                                                // height: 176,
+                                                child: ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                  child:
+                                                      ImageRenderWidget.network(
+                                                    imageUrl:
+                                                        mediaList.first.url,
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                                ),
                                               ),
-                                      ),
-                                      Positioned(
-                                        bottom: 10,
-                                        right: 10,
-                                        child: Text(
-                                          DevFunctions.searchByUUID(
-                                              mediaList[mediaIndex].uuid),
-                                          style: TextStyle(fontSize: 10),
+                                            ),
+                                            Positioned(
+                                              top: 10,
+                                              left: 10,
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: Colors.black
+                                                          .withOpacity(0.2),
+                                                      spreadRadius: 2,
+                                                      blurRadius: 20,
+                                                      offset: Offset(0, 1),
+                                                    ),
+                                                  ],
+                                                ),
+                                                child: Text(
+                                                  tag,
+                                                  style: TextStyle(
+                                                    fontSize: 25,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: Palette.white,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       )
-                                    ],
-                                  ),
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                if (state is MediaProcessing &&
-                    state.isFetching &&
-                    mediaEntries.isNotEmpty &&
-                    DevFunctions.checkMediaCount(HiveFunction.getTotalUpload(),
-                            int.parse(HiveFunction.getEvent().uploadLimit)) ==
-                        false) ...[
-                  LoadingAnimationWidget.waveDots(
-                    color: Theme.of(context).colorScheme.primary,
-                    // rightDotColor: Constant.generalColor,
-
-                    size: 50,
-                  )
+                                    : SizedBox(
+                                        height: 246,
+                                        child: Stack(
+                                          children: [
+                                            Positioned.fill(
+                                              child: SizedBox(
+                                                // height: 176,
+                                                child: ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                  child:
+                                                      ImageRenderWidget.network(
+                                                    imageUrl:
+                                                        mediaList.first.url,
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            Positioned(
+                                              top: 10,
+                                              left: 10,
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: Colors.black
+                                                          .withOpacity(0.2),
+                                                      spreadRadius: 2,
+                                                      blurRadius: 20,
+                                                      offset: Offset(0, 1),
+                                                    ),
+                                                  ],
+                                                ),
+                                                child: Text(
+                                                  tag,
+                                                  style: TextStyle(
+                                                    fontSize: 25,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: Palette.white,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ]
                 ],
-              ],
+              ),
             ),
           ),
           // floatingActionButton: FloatingActionButton(

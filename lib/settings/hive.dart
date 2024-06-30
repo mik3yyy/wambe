@@ -125,7 +125,7 @@ class HiveFunction {
   }
 
   static List getTags() {
-    return wambeBox.get("tags");
+    return wambeBox.get("tags", defaultValue: []);
   }
 
   static void insertTags(List response) {

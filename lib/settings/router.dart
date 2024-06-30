@@ -6,6 +6,7 @@ import 'package:wambe/screens/main_screen/Home_screen/view_time.dart';
 import 'package:wambe/screens/main_screen/local_widget/upload_file_screen.dart';
 import 'package:wambe/screens/main_screen/main_screen.dart';
 import 'package:wambe/screens/share_screen/share_screen.dart';
+import 'package:wambe/screens/share_screen/view_detial.dart';
 import 'package:wambe/screens/splash_screen/splash_screen.dart';
 import 'package:wambe/settings/hive.dart';
 
@@ -20,11 +21,22 @@ final GoRouter router = GoRouter(
     ),
 
     GoRoute(
-      path: '/share/:id',
-      builder: (context, state) => ShareScreen(
-        id: state.pathParameters['id']!,
-      ),
-    ),
+        path: '/share/:id',
+        builder: (context, state) => ShareScreen(
+              id: state.pathParameters['id']!,
+            ),
+        routes: [
+          GoRoute(
+              path: 'tag/:tag',
+              name: ViewTag.id,
+              builder: (context, state) {
+                print(state.pathParameters);
+                return ViewTag(
+                  eventId: state.pathParameters['id']!,
+                  tag: state.pathParameters['tag']!,
+                );
+              }),
+        ]),
 
     // // //ONBOARDING
     GoRoute(
@@ -53,7 +65,6 @@ final GoRouter router = GoRouter(
           path: 'view_moment',
           builder: (context, state) => ViewTimeMoment(
             time: state.uri.queryParameters['time']!,
-            medialist: state.extra as List<Media>,
           ),
         ),
       ],

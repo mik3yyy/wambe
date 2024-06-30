@@ -10,6 +10,10 @@ import 'package:wambe/models/user.dart';
 import 'package:wambe/settings/hive.dart';
 
 class DevFunctions {
+//
+//
+//
+//
   static String getDayOfWeek(DateTime date) {
     // Define a DateFormat that only outputs the weekday
     DateFormat dateFormat = DateFormat('EEEE');
@@ -34,15 +38,20 @@ class DevFunctions {
 
   static ImagePicker _picker = ImagePicker();
 
-  static Future<List<String>> pickedImageFromGallery(
+  static Future<List<Map<String, String>>> pickedImageFromGallery(
       BuildContext context) async {
     try {
       final pickedImage = await _picker.pickMultipleMedia(
         imageQuality: 100,
       );
-      List<String> images = [];
+      List<Map<String, String>> images = [];
+      print(pickedImage.first.path);
+      print(pickedImage.first.mimeType);
       for (XFile image in pickedImage) {
-        images.add(image.path);
+        images.add({
+          'path': image.path,
+          'type': 'image/${image.path.split('.').last}'
+        });
       }
       return images;
     } catch (e) {
@@ -50,7 +59,8 @@ class DevFunctions {
     }
   }
 
-  static Future<List<String>> pickImageFromCamera(BuildContext context) async {
+  static Future<List<Map<String, String>>> pickImageFromCamera(
+      BuildContext context) async {
     try {
       final pickedImage = await _picker.pickImage(
         source: ImageSource.camera,
@@ -58,7 +68,15 @@ class DevFunctions {
         // maxWidth: 300,
         imageQuality: 100,
       );
-      if (pickedImage != null) return [pickedImage.path];
+
+      if (pickedImage != null) {
+        return [
+          {
+            'path': pickedImage.path,
+            'type': 'image/${pickedImage.path.split('.').last}'
+          },
+        ];
+      }
 
       return [];
     } catch (e) {
@@ -72,23 +90,6 @@ class DevFunctions {
 
   static String? checkMediaLeftCount(
       int totalMedia, int count, int uploadNumber) {
-    // final mediaEntries = medias?.entries.where(
-    //       (element) {
-    //         bool check = false;
-    //         for (Media media in element.value) {
-    //           if (media.uuid == HiveFunction.getUser().userId) {
-    //             return true;
-    //           }
-    //         }
-    //         return false;
-    //       },
-    //     ).toList() ??
-    //     [];
-    print(totalMedia);
-    print(count);
-    print(uploadNumber);
-
-    // int totalCount = mediaEntries.length;
     if (count >= totalMedia + uploadNumber) {
       return null;
     } else {

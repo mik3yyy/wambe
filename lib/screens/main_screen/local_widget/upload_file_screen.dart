@@ -54,11 +54,11 @@ class _UploadFileScreenState extends State<UploadFileScreen> {
     changeImages(context.read<MediaBloc>().state.selectedImages ?? []);
   }
 
-  void changeImages(List<String> images) async {
+  void changeImages(List<Map<String, String>> images) async {
     List<Uint8List> list = [];
     for (int i = 0; i < images.length; i++) {
       Uint8List image = await File(
-        images[i],
+        images[i]['path']!,
       ).readAsBytes();
       list.add(image);
     }
@@ -87,7 +87,7 @@ class _UploadFileScreenState extends State<UploadFileScreen> {
         }
       },
       builder: (context, state) {
-        List<String> images = state.selectedImages ?? [];
+        List<Map<String, String>> images = state.selectedImages ?? [];
         // if (loaded == false) {
         //   return Scaffold(
         //     body: Center(
@@ -167,7 +167,7 @@ class _UploadFileScreenState extends State<UploadFileScreen> {
                         return Container(
                           // height: 200,
                           child: Image.network(
-                            images[index],
+                            images[index]['path']!,
                             fit: BoxFit.contain,
                             filterQuality: FilterQuality.none,
                           ),
@@ -177,7 +177,7 @@ class _UploadFileScreenState extends State<UploadFileScreen> {
                         // height: 200,
                         child: Image.file(
                           File(
-                            images[index],
+                            images[index]['path']!,
                           ),
                           fit: BoxFit.contain,
                           filterQuality: FilterQuality.none,
@@ -265,16 +265,16 @@ class _UploadFileScreenState extends State<UploadFileScreen> {
                                                 ? Image.network(
                                                     //                            uint8ListImages[index],
 
-                                                    images[index],
+                                                    images[index]['path']!,
                                                     fit: BoxFit.cover,
                                                     filterQuality:
                                                         FilterQuality.none,
                                                   )
                                                 : Image.file(
-                                                    //                            uint8ListImages[index],
+                                                    //                            uint8ListImages[index]['path']!,
 
                                                     File(
-                                                      images[index],
+                                                      images[index]['path']!,
                                                     ),
                                                     fit: BoxFit.cover,
                                                     filterQuality:
@@ -315,17 +315,17 @@ class _UploadFileScreenState extends State<UploadFileScreen> {
                                       borderRadius: BorderRadius.circular(8),
                                       child: kIsWeb
                                           ? Image.network(
-                                              //                            uint8ListImages[index],
+                                              //                            uint8ListImages[index]['path']!,
 
-                                              images[index],
+                                              images[index]['path']!,
                                               fit: BoxFit.cover,
                                               filterQuality: FilterQuality.none,
                                             )
                                           : Image.file(
-                                              //                            uint8ListImages[index],
+                                              //                            uint8ListImages[index]['path']!,
 
                                               File(
-                                                images[index],
+                                                images[index]['path']!,
                                               ),
                                               fit: BoxFit.cover,
                                               filterQuality: FilterQuality.none,
@@ -349,7 +349,9 @@ class _UploadFileScreenState extends State<UploadFileScreen> {
                       if (res != null) {
                         MyMessageHandler.showSnackBar(context, res);
                       } else {
-                        context.read<MediaBloc>().add(UploadFilesEvent());
+                        context.read<MediaBloc>().add(UploadFilesEvent(
+                              tag: widget.tag,
+                            ));
                       }
                     },
                     child: Container(

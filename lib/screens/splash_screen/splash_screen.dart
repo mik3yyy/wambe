@@ -125,7 +125,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 ],
               ),
               Text(
-                "Capture every \nmoment",
+                "Capture every moment one pixel at a time.",
                 style: TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 25,
@@ -133,7 +133,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 ),
               ),
               Text(
-                "Life in motion, through your eyes, one frame at a time.",
+                "Wambe lets you relive every smile, and  cherished moment with your favourite people.",
                 style: TextStyle(
                   color: Palette.white,
                 ),

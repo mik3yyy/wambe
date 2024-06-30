@@ -13,12 +13,12 @@ import 'package:wambe/settings/hive.dart';
 
 class mediaRepoImp implements MediaRepo {
   @override
-  Future<Map<String, dynamic>> UploadFile({
-    required List<String> files,
-  }) async {
+  Future<Map<String, dynamic>> UploadFile(
+      {required List<Map<String, String>> files, required String tag}) async {
     try {
-      final res = await MediaDataProvider.uploadFiles(files: files);
+      final res = await MediaDataProvider.uploadFiles(files: files, tag: tag);
       final data = res.data as Map;
+      // return {'success': false, 'status': 500, 'data': {}};
 
       if ((res.statusCode ?? 500) >= 200 && (res.statusCode ?? 500) < 300) {
         return {'success': true, 'status': res.statusCode, 'data': data};
@@ -132,6 +132,51 @@ class mediaRepoImp implements MediaRepo {
     print("------");
     final response = await Dio().get(
       '${Constants.url}/user-event-stat?eventId=${HiveFunction.getEvent().eventId}&userId=${HiveFunction.getUser().userId}',
+      options: Options(
+        headers: {
+          "Authorization": Constants.token,
+          // 'Content-Type': 'multipart/form-data',
+        },
+      ),
+      queryParameters: {},
+    );
+    print(response.data as Map);
+
+    if (response.statusCode == 200) {
+      return response.data;
+    } else {
+      throw Exception('Failed to load media');
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> getEventMediaTags() async {
+    print("------");
+    final response = await Dio().get(
+      '${Constants.url}/event-tags-media?eventId=${HiveFunction.getEvent().eventId}',
+      options: Options(
+        headers: {
+          "Authorization": Constants.token,
+          // 'Content-Type': 'multipart/form-data',
+        },
+      ),
+      queryParameters: {},
+    );
+    print(response.data as Map);
+
+    if (response.statusCode == 200) {
+      return response.data;
+    } else {
+      throw Exception('Failed to load media');
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> getTagMedia(
+      String tag, int page, int pageSize) async {
+    print("------");
+    final response = await Dio().get(
+      '${Constants.url}/tag-media?eventId=${HiveFunction.getEvent().eventId}&tag=$tag&page=$page&pageSize=$pageSize',
       options: Options(
         headers: {
           "Authorization": Constants.token,

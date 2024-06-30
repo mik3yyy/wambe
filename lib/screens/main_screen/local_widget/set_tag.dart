@@ -58,6 +58,7 @@ class _SetTagSheetState extends State<SetTagSheet> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -73,11 +74,11 @@ class _SetTagSheetState extends State<SetTagSheet> {
                   )
                 ],
               ),
-              Gap(10),
+              const Gap(10),
               Padding(
-                padding: const EdgeInsets.only(left: 15),
+                padding: EdgeInsets.zero, //only(left: 15),
                 child: Text(
-                  "Set Tag",
+                  "Set Album",
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.primary,
                     fontWeight: FontWeight.w600,
@@ -85,6 +86,7 @@ class _SetTagSheetState extends State<SetTagSheet> {
                   ),
                 ),
               ),
+              const Gap(10),
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(horizontal: 15),

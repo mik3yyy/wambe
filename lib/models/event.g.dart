@@ -24,13 +24,14 @@ class EventAdapter extends TypeAdapter<Event> {
       eventId: fields[4] as String,
       eventName: fields[6] as String,
       eventPublic: fields[5] as bool,
+      paid: fields[7] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, Event obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.uploadLimit)
       ..writeByte(1)
@@ -44,7 +45,9 @@ class EventAdapter extends TypeAdapter<Event> {
       ..writeByte(5)
       ..write(obj.eventPublic)
       ..writeByte(6)
-      ..write(obj.eventName);
+      ..write(obj.eventName)
+      ..writeByte(7)
+      ..write(obj.paid);
   }
 
   @override

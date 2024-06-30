@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:bloc/bloc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/adapters.dart';
@@ -83,26 +85,30 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       Map<String, dynamic> response = await userRepo.signIn(
         event: event.event,
       );
-      print(response);
       if (response['success']) {
         List<User> users = [];
 
         for (var res in response['data']['eventUsers']) {
           users.add(User.fromJson(res));
         }
-        print("----------");
         HiveFunction.insertEventUsers(users);
-        print("----------");
-        print(response['data']['tags']);
-        HiveFunction.insertTags(response['data']['tags']);
-        print("----------");
 
-        print(HiveFunction.getTags());
+        HiveFunction.insertTags(response['data']['tags']);
+
+        if (response['data']['paid'] == false) {
+          emit(UserError(
+            message: "Event has not being paid for",
+            user: state.user,
+            event: state.event,
+          ));
+          return;
+        }
+        var eve = Event.fromJson(
+          response['data'],
+        );
         emit(
           userLoaded(
-            event: Event.fromJson(
-              response['data'],
-            ),
+            event: eve,
             message: "Event Login Succesful",
             user: state.user,
           ),

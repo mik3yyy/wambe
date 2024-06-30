@@ -81,83 +81,84 @@ class _RoundupScreenState extends State<RoundupScreen> {
                     ),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      const Gap(70),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 30),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Image.asset(
-                              'assets/images/recap/donut.png',
-                              height: 104,
-                              width: 103,
-                            ),
-                            SvgPicture.asset(
-                                'assets/svgs/round_up/round_up.svg')
-                          ],
-                        ),
-                      ),
-                      const Text.rich(
-                        textAlign: TextAlign.center,
-                        TextSpan(
-                          text: "Your posts were liked and shared over",
-                          style: TextStyle(
-                              fontSize: 26,
-                              color: Color(0xFF1D2B4F),
-                              fontWeight: FontWeight.w600),
-                          children: [
-                            TextSpan(
-                              text: " 200 times,",
-                              style: TextStyle(
-                                color: Color(0xFFACE894),
-                              ),
-                            ),
-                            TextSpan(
-                              text:
-                                  " inspiring others and extending the event's reach!",
-                            )
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 30),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Image.asset(
-                              'assets/images/recap/dots.png',
-                              height: 154,
-                              width: 153,
-                            ),
-                            Image.asset(
-                              'assets/images/recap/donut.png',
-                              height: 104,
-                              width: 103,
-                            )
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 30),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Image.asset(
-                              'assets/images/recap/donut.png',
-                              height: 104,
-                              width: 103,
-                            )
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                // Padding(
+                //   padding: const EdgeInsets.symmetric(horizontal: 20),
+                //   child: Column(
+                //     mainAxisAlignment: MainAxisAlignment.spaceAround,
+                //     children: [
+                //       const Gap(70),
+                //       Padding(
+                //         padding: const EdgeInsets.symmetric(horizontal: 30),
+                //         child: Row(
+                //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //           children: [
+                //             Image.asset(
+                //               'assets/images/recap/donut.png',
+                //               height: 104,
+                //               width: 103,
+                //             ),
+                //             SvgPicture.asset(
+                //                 'assets/svgs/round_up/round_up.svg')
+                //           ],
+                //         ),
+                //       ),
+                //       const Text.rich(
+                //         textAlign: TextAlign.center,
+                //         TextSpan(
+                //           text: "Your posts were liked and shared over",
+                //           style: TextStyle(
+                //               fontSize: 26,
+                //               color: Color(0xFF1D2B4F),
+                //               fontWeight: FontWeight.w600),
+                //           children: [
+                //             TextSpan(
+                //               text: " 200 times,",
+                //               style: TextStyle(
+                //                 color: Color(0xFFACE894),
+                //               ),
+                //             ),
+                //             TextSpan(
+                //               text:
+                //                   " inspiring others and extending the event's reach!",
+                //             )
+                //           ],
+                //         ),
+                //       ),
+                //       Padding(
+                //         padding: const EdgeInsets.symmetric(horizontal: 30),
+                //         child: Row(
+                //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //           children: [
+                //             Image.asset(
+                //               'assets/images/recap/dots.png',
+                //               height: 154,
+                //               width: 153,
+                //             ),
+                //             Image.asset(
+                //               'assets/images/recap/donut.png',
+                //               height: 104,
+                //               width: 103,
+                //             )
+                //           ],
+                //         ),
+                //       ),
+                //       Padding(
+                //         padding: const EdgeInsets.symmetric(horizontal: 30),
+                //         child: Row(
+                //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //           children: [
+                //             Image.asset(
+                //               'assets/images/recap/donut.png',
+                //               height: 104,
+                //               width: 103,
+                //             )
+                //           ],
+                //         ),
+                //       ),
+                //     ],
+                //   ),
+                // ),
+
                 if (HiveFunction.getUserRoundu()?['firstPictureByUser'] ??
                     false)
                   Padding(
@@ -241,8 +242,8 @@ class _RoundupScreenState extends State<RoundupScreen> {
                   controller: _pageController,
                   count: (HiveFunction.getUserRoundu()?['firstPictureByUser'] ??
                           false)
-                      ? 3
-                      : 2,
+                      ? 2
+                      : 0,
                   effect: WormEffect(
                     // radius: 10,
                     activeDotColor: Palette.white,

@@ -26,6 +26,116 @@ class MediaBloc extends Bloc<MediaEvent, MediaState> {
     on<GetEventRoundup>(_getEventMedia);
     on<GetuserRoundup>(_getUserMedia);
     on<RestoreMyMomentEvent>(_restoreMyMonet);
+    on<EventMediaTag>(_getEventMediaTags);
+    on<MediaTag>(_getTagMedia);
+  }
+  _getTagMedia(MediaTag event, Emitter emit) async {
+    if (event.add) {
+      emit(
+        MediaProcessing(
+          isMoreFetching: true,
+          selectedImages: state.selectedImages,
+          media: state.media,
+        ),
+      );
+    } else {
+      emit(
+        MediaProcessing(
+          isFetching: true,
+          selectedImages: state.selectedImages,
+          media: state.media,
+        ),
+      );
+    }
+    print("----hmvkj-");
+    try {
+      var response =
+          await mediaRepo.getTagMedia(event.tag, event.pageNumber, 10);
+      print(response);
+      Map<String, List<Media>> media = state.media ?? {};
+
+      if (event.add) {
+        for (int i = 0; i < (response['media'] as List).length; i++) {
+          if (media[event.tag]!
+              .contains(Media.fromJson(response['media'][i]))) {
+          } else {
+            media[event.tag]!.add(Media.fromJson(response['media'][i]));
+          }
+        }
+
+        // media[event.tag]!.addAll((response['media'] as List)
+        //     .map((item) => Media.fromJson(item))
+        //     .toList());
+      } else {
+        media[event.tag] = (response['media'] as List)
+            .map((item) => Media.fromJson(item))
+            .toList();
+      }
+
+      // // HiveFunction.insertuserRoundup(response);
+      emit(MediaLoaded(
+        message: "Successs",
+        selectedImages: state.selectedImages,
+        media: media,
+      ));
+    } catch (e) {
+      print(e.toString());
+      emit(
+        MediaError(
+          message: "Error Loading",
+          selectedImages: state.selectedImages,
+          media: state.media,
+        ),
+      );
+      // Me(message: "Check your network", user: state.user);
+    }
+  }
+
+  _getEventMediaTags(EventMediaTag event, Emitter emit) async {
+    emit(
+      MediaProcessing(
+        isFetching: true,
+        selectedImages: state.selectedImages,
+        media: state.media,
+      ),
+    );
+    print("kbijdsblo");
+    try {
+      var response = await mediaRepo.getEventMediaTags();
+      print(response);
+
+      HiveFunction.insertTags(response['tags']);
+      Map<String, List<Media>> media = {};
+
+      List<String> tags = (response['tags'] as List)
+          .map(
+            (e) => e.toString(),
+          )
+          .toList();
+      response['tagsMedia'];
+      for (String tag in tags) {
+        media[tag] = (response['tagsMedia'][tag]['mediaItems'] as List)
+            .map((item) => Media.fromJson(item))
+            .toList();
+        print(media[tag]);
+      }
+      // HiveFunction.insertuserRoundup(response);
+      emit(MediaLoaded(
+        message: "Successs",
+        selectedImages: state.selectedImages,
+        media: media,
+      ));
+    } catch (e) {
+      print(e.toString());
+      emit(
+        MediaError(
+          message: "Error Loading",
+          selectedImages: state.selectedImages,
+          media: state.media,
+        ),
+      );
+      // Me(message: "Check your network", user: state.user);
+    }
   }
 
   _restoreMyMonet(RestoreMyMomentEvent event, Emitter emit) async {
@@ -108,7 +218,7 @@ class MediaBloc extends Bloc<MediaEvent, MediaState> {
               message: "Deleted Image(s) Succesfully",
               media: state.media),
         );
-        add(LoadMediaEvent(eventId: HiveFunction.getEvent().eventId));
+        add(EventMediaTag());
       } else {
         if (response['status'] != null) {
           emit(
@@ -141,6 +251,7 @@ class MediaBloc extends Bloc<MediaEvent, MediaState> {
     try {
       Map<String, dynamic> response = await mediaRepo.UploadFile(
         files: state.selectedImages!,
+        tag: event.tag,
       );
       print(response);
       if (response['success']) {
@@ -150,7 +261,7 @@ class MediaBloc extends Bloc<MediaEvent, MediaState> {
               message: "Uploaded Images Succesfully",
               media: state.media),
         );
-        add(LoadMediaEvent(eventId: HiveFunction.getEvent().eventId));
+        add(EventMediaTag());
       } else {
         if (response['status'] != null) {
           emit(

@@ -51,6 +51,7 @@ class _UploadImageState extends State<UploadImage> {
           // context.read<MediaBloc>().add(UploadFilesEvent());
         }
       } catch (e) {
+        print(e.toString());
         MyMessageHandler.showSnackBar(context, "Error Adding Image");
       }
     }

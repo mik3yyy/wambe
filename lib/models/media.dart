@@ -19,18 +19,29 @@ class Media extends HiveObject with EquatableMixin {
   @HiveField(3)
   final String uuid;
 
+  @HiveField(4)
+  final String eventId;
+
+  @HiveField(5)
+  final String tag;
+
   Media(
       {required this.url,
       required this.createdAt,
       required this.uuid,
+      required this.eventId,
+      required this.tag,
       required this.id});
 
   factory Media.fromJson(Map<String, dynamic> json) {
     return Media(
-        url: json['url'],
-        createdAt: json['created_at'],
-        uuid: json['uuid'],
-        id: json['id']);
+      url: json['url'],
+      createdAt: json['created_at'],
+      uuid: json['uuid'],
+      tag: json['tag'],
+      eventId: json['eventId'],
+      id: json['id'],
+    );
   }
 
   @override

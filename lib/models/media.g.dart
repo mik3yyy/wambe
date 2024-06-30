@@ -20,6 +20,8 @@ class MediaAdapter extends TypeAdapter<Media> {
       url: fields[0] as String,
       createdAt: fields[2] as String,
       uuid: fields[3] as String,
+      eventId: fields[4] as String,
+      tag: fields[5] as String,
       id: fields[1] as int,
     );
   }
@@ -27,7 +29,7 @@ class MediaAdapter extends TypeAdapter<Media> {
   @override
   void write(BinaryWriter writer, Media obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.url)
       ..writeByte(1)
@@ -35,7 +37,11 @@ class MediaAdapter extends TypeAdapter<Media> {
       ..writeByte(2)
       ..write(obj.createdAt)
       ..writeByte(3)
-      ..write(obj.uuid);
+      ..write(obj.uuid)
+      ..writeByte(4)
+      ..write(obj.eventId)
+      ..writeByte(5)
+      ..write(obj.tag);
   }
 
   @override

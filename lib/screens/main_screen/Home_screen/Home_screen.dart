@@ -24,6 +24,7 @@ import 'package:wambe/models/media.dart';
 import 'package:wambe/screens/main_screen/Home_screen/view_time.dart';
 import 'package:wambe/screens/main_screen/local_widget/filter_mymoment.dart';
 import 'package:wambe/screens/main_screen/local_widget/upload_image_popup.dart';
+import 'package:wambe/screens/share_screen/share_function.dart';
 import 'package:wambe/settings/constants.dart';
 import 'package:wambe/settings/dev_function.dart';
 import 'package:wambe/settings/hive.dart';
@@ -43,51 +44,13 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _scrollController.addListener(_onScroll);
-    print(context.read<MediaBloc>().state.media);
-    if ((context.read<MediaBloc>().state.media ?? {}).isEmpty) {
-      context.read<MediaBloc>().add(
-            LoadMediaEvent(eventId: HiveFunction.getEvent().eventId.toString()),
-          );
-    }
+    context.read<MediaBloc>().add(EventMediaTag());
+    // if (context.read<MediaBloc>().state.media == null) {
+    //   context.read<MediaBloc>().add(
+    //         LoadMediaEvent(eventId: HiveFunction.getEvent().eventId.toString()),
+    //       );
+    // }
   }
-
-  void _onScroll() {
-    if (_scrollController.position.extentAfter < _scrollThreshold) {
-      if (context.read<MediaBloc>().state is! MediaProcessing &&
-          DevFunctions.checkMediaCount(HiveFunction.getTotalUpload(),
-                  int.parse(HiveFunction.getEvent().uploadLimit)) ==
-              false) {
-        context.read<MediaBloc>().add(
-              LoadMediaEvent(
-                add: true,
-                eventId: HiveFunction.getEvent().eventId.toString(),
-              ),
-            );
-      }
-    }
-  }
-
-  bool isEditing = false;
-  toogleEdit() {
-    setState(() {
-      isEditing = !isEditing;
-    });
-  }
-
-  final Set<int> selectedImageIds = Set<int>();
-
-  void toggleSelection(int id) {
-    setState(() {
-      if (selectedImageIds.contains(id)) {
-        selectedImageIds.remove(id);
-      } else {
-        selectedImageIds.add(id);
-      }
-    });
-  }
-
-  List<String> skeys = [];
 
   @override
   Widget build(BuildContext context) {
@@ -110,6 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ).toList() ??
             [];
+        // final mediaEntries = state.media?.entries.toList() ?? [];
 
         if (state is MediaProcessing &&
             state.isFetching &&
@@ -200,82 +164,64 @@ class _HomeScreenState extends State<HomeScreen> {
           appBar: AppBar(
             centerTitle: false,
             title: Text(
-              "My Moments",
+              "Let’s share your moment",
               style: TextStyle(
                 color: Theme.of(context).colorScheme.primary,
-                fontWeight: FontWeight.w600,
-                fontFamily: "Norms",
+                fontWeight: FontWeight.w700,
                 fontSize: 16,
+                fontFamily: "Norms",
               ),
             ),
             actions: [
-              if (selectedImageIds.isNotEmpty)
-                InkWell(
-                  onTap: () async {
-                    final result = await showDialogAlert(
-                      context: context,
-                      title: 'Are you sure?',
-                      message: 'Do you want to Delete?',
-                      actionButtonTitle: 'Delete',
-                      cancelButtonTitle: 'Cancel',
-                      actionButtonTextStyle: const TextStyle(
-                        color: Colors.red,
-                      ),
-                      cancelButtonTextStyle: const TextStyle(
-                        color: Colors.black,
-                      ),
+              if (HiveFunction.getEvent().eventPublic)
+                IconButton(
+                  onPressed: () async {
+                    await DevFunctions.shareUrl(
+                      "https://wambe.netlify.app/share/${HiveFunction.getEvent().eventId}",
+                      context,
                     );
-                    if (result == ButtonActionType.action) {
-                      context.read<MediaBloc>().add(
-                          DeleteMediaEvent(ids: selectedImageIds.toList()));
-                    }
                   },
-                  child: Container(
-                    height: 30,
-                    color: Colors.redAccent.withOpacity(.1),
-                    padding: EdgeInsets.symmetric(horizontal: 10),
-                    child: const Center(
-                        child: Text(
-                      "Delete",
-                      style: TextStyle(
-                        color: Colors.redAccent,
-                      ),
-                    )),
+                  icon: Icon(
+                    Icons.share,
+                    color: Palette.darkAsh,
                   ),
                 ),
-              // Gap(20),
-              // Icon(
-              //   Icons.share,
-              //   color: Palette.darkAsh,
-              // ),
               Gap(20),
             ],
           ),
           body: RefreshIndicator(
             onRefresh: () async {
-              context.read<MediaBloc>().add(
-                    LoadMediaEvent(
-                        eventId: HiveFunction.getEvent().eventId.toString()),
-                  );
+              context.read<MediaBloc>().add(EventMediaTag());
+
               await Future.delayed(Duration(seconds: 2));
             },
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  if (state.media != null &&
-                      (state.media?.isEmpty ?? false)) ...[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Lottie.asset(
-                          'assets/gifs/empty.json',
-                          width: 200,
-                          height: 200,
-                          fit: BoxFit.fill,
-                        )
-                      ],
+                  if (HiveFunction.getTags().isEmpty) ...[
+                    Container(
+                      width: double.infinity,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          ImageRenderWidget.asset(
+                            imagePath: 'assets/images/empty.png',
+                            width: 280,
+                            height: 240,
+                            fit: BoxFit.cover,
+                          ),
+                          // GifView.asset(
+                          //   'assets/gifs/empty_home.gif',
+                          //   width: 200,
+                          //   height: 280,
+                          //   fit: BoxFit.cover,
+
+                          //   // frameRate: 30, // default is 15 FPS
+                          // ),
+                        ],
+                      ),
                     ),
                     const Gap(20),
                     Text(
@@ -285,40 +231,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           fontWeight: FontWeight.w600),
                     ),
                   ] else ...[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        IconButton(
-                          padding: EdgeInsets.zero,
-                          onPressed: () {
-                            showFlexibleBottomSheet(
-                              bottomSheetColor: Colors.transparent,
-                              initHeight: 0.5,
-                              context: context,
-                              builder: (context, scrollController,
-                                  bottomSheetOffset) {
-                                return FilterMyMoment(
-                                  onApply: (keys) {
-                                    setState(() {
-                                      skeys = keys;
-                                    });
-                                  },
-                                  currentSelectedKeys: skeys,
-                                );
-                              },
-                              anchors: [0, 0.5, 1],
-                              // isSafeArea: true,
-                            );
-                          },
-                          icon: SvgPicture.asset('assets/svgs/filter.svg'),
-                        ),
-                      ],
-                    ),
-                    const Gap(5),
                     Expanded(
                       child: Builder(
                         builder: (context) {
                           int indexList = 0;
+
                           return MasonryGridView.count(
                             itemCount: mediaEntries.length,
                             crossAxisCount: 2,
@@ -328,25 +245,24 @@ class _HomeScreenState extends State<HomeScreen> {
                               final time = mediaEntries.toList()[index].key;
                               var mediaList =
                                   mediaEntries.toList()[index].value;
-                              mediaList = mediaList
-                                  .where(
-                                    (element) =>
-                                        element.uuid ==
-                                        HiveFunction.getUser().userId,
-                                  )
-                                  .toList();
+                              // mediaList = mediaList
+                              //     .where(
+                              //       (element) =>
+                              //           element.uuid ==
+                              //           HiveFunction.getUser().userId,
+                              //     )
+                              //     .toList();
                               int postion = index % 4;
                               print(postion);
-                              if (skeys.isNotEmpty) {
-                                if (skeys.contains(time) == false) {
-                                  return Container();
-                                }
-                              }
+                              // if (skeys.isNotEmpty) {
+                              //   if (skeys.contains(time) == false) {
+                              //     return Container();
+                              //   }
+                              // }
                               return GestureDetector(
                                 onTap: () {
                                   context.pushNamed(
                                     ViewTimeMoment.id,
-                                    extra: mediaList,
                                     queryParameters: {'time': time},
                                   );
                                 },
@@ -451,26 +367,53 @@ class _HomeScreenState extends State<HomeScreen> {
                         },
                       ),
                     ),
-                    // if (state is MediaProcessing &&
-                    //     state.isFetching &&
-                    //     mediaEntries.isNotEmpty &&
-                    //     DevFunctions.checkMediaCount(
-                    //             HiveFunction.getTotalUpload(),
-                    //             int.parse(
-                    //                 HiveFunction.getEvent().uploadLimit)) ==
-                    //         false) ...[
-                    //   LoadingAnimationWidget.waveDots(
-                    //     color: Theme.of(context).colorScheme.primary,
-                    //     // rightDotColor: Constant.generalColor,
-
-                    //     size: 50,
-                    //   )
-                    // ]
                   ]
                 ],
               ),
             ),
           ),
+          // floatingActionButton: FloatingActionButton(
+          //   backgroundColor: DevFunctions.checkMediaCount(
+          //               HiveFunction.getTotalUpload(),
+          //               int.parse(HiveFunction.getEvent().uploadLimit)) ||
+          //           (HiveFunction.getEvent().eventEnd)
+          //       ? Theme.of(context).colorScheme.primary.withOpacity(.5)
+          //       : Theme.of(context).colorScheme.primary,
+          //   shape: CircleBorder(),
+          //   child: Icon(Icons.add),
+          //   //params
+          //   onPressed: () {
+          //     if (DevFunctions.checkMediaCount(HiveFunction.getTotalUpload(),
+          //         int.parse(HiveFunction.getEvent().uploadLimit))) {
+          //       if (HiveFunction.getUser().eventOwner) {
+          //         MyMessageHandler.showSnackBar(
+          //             context, "Your event has reached totalMedia limit");
+          //         return;
+          //       }
+          //       MyMessageHandler.showSnackBar(
+          //           context, "Maximum User Upload Reached");
+          //       return;
+          //     }
+          //     if (HiveFunction.getEvent().eventEnd) {
+          //       MyMessageHandler.showSnackBar(context, "Event has Ended");
+          //       return;
+          //     }
+          //     showFlexibleBottomSheet(
+          //       // minHeight: 0,
+          //       // initHeight: 0.5,
+          //       // maxHeight: 1,
+          //       // isExpand: false,
+          //       bottomSheetColor: Colors.transparent,
+          //       initHeight: 0.3,
+          //       context: context,
+          //       builder: (context, scrollController, bottomSheetOffset) {
+          //         return UploadImage();
+          //       },
+          //       anchors: [0, 0.5, 1],
+          //       isSafeArea: true,
+          //     );
+          //   },
+          // ),
         );
       },
     );
@@ -480,8 +423,10 @@ class _HomeScreenState extends State<HomeScreen> {
 class ImageDialog extends StatefulWidget {
   final List<Media> images;
   final int index;
+  final shareEnabled;
 
-  ImageDialog({required this.images, required this.index});
+  ImageDialog(
+      {required this.images, required this.index, this.shareEnabled = true});
 
   @override
   State<ImageDialog> createState() => _ImageDialogState();
@@ -565,17 +510,23 @@ class _ImageDialogState extends State<ImageDialog> {
                         color: Palette.white,
                       ),
                     ),
-                    IconButton(
-                      onPressed: () async {
-                        await DevFunctions.shareUrl(
-                            widget.images[_currentIndex].url, context);
-                      },
-                      icon: Icon(
-                        Icons.share,
-                        size: 30,
-                        color: Palette.white,
-                      ),
-                    )
+                    widget.shareEnabled
+                        ? IconButton(
+                            onPressed: () async {
+                              await ShareFunction.shareImage(
+                                  widget.images[_currentIndex].url, context);
+                              // await DevFunctions.shareUrl(
+                              //     widget.images[_currentIndex].url, context);
+                            },
+                            icon: Icon(
+                              Icons.share,
+                              size: 30,
+                              color: Palette.white,
+                            ),
+                          )
+                        : Container(
+                            width: 20,
+                          )
                   ],
                 ),
               ),
